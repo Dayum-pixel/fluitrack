@@ -52,6 +52,18 @@ def on_message(client, userdata, msg):
             db.add(reading)
             db.commit()
             db.refresh(reading)
+            if sensor_type == SensorType.FLOW and value < 5.0:
+                alert = Alert(
+                    dma_id=dma_id,
+                    reading_id=reading.id,
+                    type="low_flow_leak",
+                    severity="high" if value < 2.0 else "medium",
+                    confidence_score=0.85,
+                    message=f"Low flow detected in DMA {dma_id}: {value} L/min"
+                )
+                db.add(alert)
+                db.commit()
+                print(f"Alert created: {alert.type}")
             print(f"Saved reading ID {reading.id}")
             # TODO: Here we can add leak detection logic / alert creation
         finally:
