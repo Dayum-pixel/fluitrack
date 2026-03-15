@@ -7,7 +7,7 @@ import os
 from contextlib import asynccontextmanager
 import asyncio
 from sqlalchemy import text
-from .database import engine, get_db, SessionLocal
+from database import engine, get_db, SessionLocal
 
 from models import Base, SensorReading, Alert, SensorType
 from mqtt_sub import start_mqtt
