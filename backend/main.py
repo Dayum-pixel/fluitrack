@@ -1,19 +1,20 @@
 from fastapi import FastAPI, Depends, HTTPException
 from contextlib import asynccontextmanager
 import asyncio
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-from database import engine, get_db
-from mqtt_sub import start_mqtt
-from routers.sensor import router as sensor_router
-from schemas import SensorReading
-from models import Base, SensorReading  # Import Base here (module level)
+from .database import engine, get_db
+from .mqtt_sub import start_mqtt
+from .routers.sensor import router as sensor_router
+from .schemas import SensorReading
+from .models import Base, SensorReading
 
-# Create tables **once at module load** (safe and common pattern)
 Base.metadata.create_all(bind=engine)
+app = FastAPI(title="Fluitrack Backend")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # No import needed here anymore
     asyncio.create_task(start_mqtt())
     yield
 
@@ -35,5 +36,5 @@ def test_db(db: Session = Depends(get_db)):
 
 @app.get("/readings/latest", response_model=list[SensorReading])
 def get_latest_readings(db: Session = Depends(get_db)):
-    readings = db.query(SensorReading).order_by(SensorReading.timestamp.desc()).limit(10).all()
+    readings = db.query(models.SensorReading).order_by(models.SensorReading.timestamp.desc()).limit(10).all()
     return readings
