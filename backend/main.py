@@ -8,7 +8,7 @@ from .database import engine, get_db
 from .mqtt_sub import start_mqtt
 from .routers.sensor import router as sensor_router
 from .schemas import SensorReading
-from .models import SensorReading, Base
+from .models import Base
 
 app = FastAPI(title="Fluitrack Backend")
 
