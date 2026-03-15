@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 from contextlib import asynccontextmanager
 import asyncio
+from sqlalchemy import text
 
 from .models import Base, SensorReading, Alert, SensorType
 from .mqtt_sub import start_mqtt
@@ -46,7 +47,7 @@ def read_root():
 @app.get("/test-db")
 def test_db(db: Session = Depends(get_db)):
     try:
-        result = db.execute("SELECT 1").scalar()
+        result = db.execute(test("SELECT 1")).scalar()
         return {"status": "DB connected", "test": result}
     except Exception as e:
-        raise HTTPException(500, f"DB failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"DB connection failed: {str(e)}")
