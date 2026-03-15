@@ -1,8 +1,8 @@
 import json
 from paho.mqtt import client as mqtt_client
 from sqlalchemy.orm import Session
-from database import get_db, engine
-from models import SensorReading, SensorType, Alert
+from .database import get_db, engine
+from .models import SensorReading, SensorType, Alert
 from dotenv import load_dotenv
 import os
 
