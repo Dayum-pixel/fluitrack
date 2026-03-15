@@ -3,7 +3,7 @@ import asyncio
 from paho.mqtt import client as mqtt_client
 from sqlalchemy.orm import Session
 from database import get_db, engine
-from .models import SensorReading, SensorType
+from models import SensorReading, SensorType
 from dotenv import load_dotenv
 import os
 
