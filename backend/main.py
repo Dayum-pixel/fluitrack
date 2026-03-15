@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from contextlib import asynccontextmanager
 import asyncio
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from .database import engine, get_db
 from .mqtt_sub import start_mqtt
