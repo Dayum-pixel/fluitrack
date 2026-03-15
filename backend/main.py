@@ -47,7 +47,7 @@ def read_root():
 @app.get("/test-db")
 def test_db(db: Session = Depends(get_db)):
     try:
-        result = db.execute(test('SELECT 1')).scalar()
+        result = db.execute(test("SELECT 1")).scalar()
         return {"status": "DB connected", "test": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"DB connection failed: {str(e)}")
