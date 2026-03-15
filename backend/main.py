@@ -8,10 +8,10 @@ from contextlib import asynccontextmanager
 import asyncio
 from sqlalchemy import text
 
-from .models import Base, SensorReading, Alert, SensorType
-from .mqtt_sub import start_mqtt
-from .routers.sensor import router as sensor_router
-from .schemas import SensorReading
+from models import Base, SensorReading, Alert, SensorType
+from mqtt_sub import start_mqtt
+from routers.sensor import router as sensor_router
+from schemas import SensorReading
 
 load_dotenv()
 
