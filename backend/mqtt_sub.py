@@ -1,9 +1,8 @@
 import json
-import asyncio
 from paho.mqtt import client as mqtt_client
 from sqlalchemy.orm import Session
 from database import get_db, engine
-from models import SensorReading, SensorType
+from models import SensorReading, SensorType, Alert
 from dotenv import load_dotenv
 import os
 
@@ -28,7 +27,6 @@ def on_message(client, userdata, msg):
         data = json.loads(payload)
         print(f"Received: {data} on topic {msg.topic}")
 
-        # Example payload from ESP32: {"device_id": "esp32-01", "dma_id": 1, "type": "flow", "value": 45.2, "raw": "..."}
         dma_id = data.get("dma_id")
         sensor_type_str = data.get("type")
         value = data.get("value")
@@ -40,7 +38,7 @@ def on_message(client, userdata, msg):
 
         sensor_type = SensorType[sensor_type_str.upper()]
 
-        db = next(get_db())  # Get session
+        db: Session = next(get_db())
         try:
             reading = SensorReading(
                 dma_id=dma_id,
@@ -52,6 +50,8 @@ def on_message(client, userdata, msg):
             db.add(reading)
             db.commit()
             db.refresh(reading)
+
+            # Basic leak detection example
             if sensor_type == SensorType.FLOW and value < 5.0:
                 alert = Alert(
                     dma_id=dma_id,
@@ -64,8 +64,9 @@ def on_message(client, userdata, msg):
                 db.add(alert)
                 db.commit()
                 print(f"Alert created: {alert.type}")
+
             print(f"Saved reading ID {reading.id}")
-            # TODO: Here we can add leak detection logic / alert creation
+
         finally:
             db.close()
 
@@ -75,14 +76,14 @@ def on_message(client, userdata, msg):
 def run_mqtt():
     client = mqtt_client.Client(protocol=mqtt_client.MQTTv5)
     client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
-    client.tls_set()  # Enable TLS for port 8883
+    client.tls_set()  # TLS for HiveMQ Cloud
     client.on_connect = on_connect
     client.on_message = on_message
 
     client.connect(MQTT_BROKER, MQTT_PORT)
-    client.loop_forever()  # Blocking – run in thread later
+    client.loop_forever()
 
-# For FastAPI startup (we'll add in main.py next)
 async def start_mqtt():
+    import asyncio
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, run_mqtt)
