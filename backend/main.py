@@ -3,11 +3,11 @@ from contextlib import asynccontextmanager
 import asyncio
 from sqlalchemy import text
 
-from database import engine, get_db
-from mqtt_sub import start_mqtt
-from routers.sensor import router as sensor_router
-from schemas import SensorReading
-from models import SensorReading
+from .database import engine, get_db
+from .mqtt_sub import start_mqtt
+from .routers.sensor import router as sensor_router
+from .schemas import SensorReading
+from .models import SensorReading, Base
 
 app = FastAPI(title="Fluitrack Backend")
 
