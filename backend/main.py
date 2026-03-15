@@ -7,6 +7,7 @@ import os
 from contextlib import asynccontextmanager
 import asyncio
 from sqlalchemy import text
+from .database import engine, get_db, SessionLocal
 
 from models import Base, SensorReading, Alert, SensorType
 from mqtt_sub import start_mqtt
@@ -15,16 +16,10 @@ from schemas import SensorReading
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL not set")
-
-engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})  # Add SSL for Supabase
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from .models import Base
     Base.metadata.create_all(bind=engine)
     asyncio.create_task(start_mqtt())
     yield
